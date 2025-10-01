@@ -1,0 +1,273 @@
+CLASS Student
+
+CLASS FIELDS:
+
+firstName (String)
+
+lastName (String)
+
+studentID (String)
+
+details (Student.Details)
+
+CONSTRUCTOR WITH PARAMETERS
+IMPORT: pStudentID (String), pFirstName (String), pLastName (String), pCourse (String), pYear (Whole Number), pCWA (Decimal), pStatus (String), pCredits (Whole Number)
+EXPORT: None
+ASSERTION: Object created with imported values.
+ALGORITHM:
+
+studentID <- pStudentID
+firstName <- pFirstName
+lastName <- pLastName
+details <- NEW Details(pCourse, pYear, pCWA, pStatus, pCredits)
+
+
+METHOD: toString
+IMPORT: None
+EXPORT: theString (String)
+ASSERTION: Returns a string representation of the Student object.
+ALGORITHM:
+
+theString <- "ID: " + studentID + ", Name: " + firstName + " " + lastName + ", " + CALL toString ON details
+EXPORT theString
+
+CLASS Student.Details
+
+CLASS FIELDS:
+
+course (String)
+
+year (Whole Number)
+
+cwa (Decimal)
+
+status (String)
+
+earnedCredits (Whole Number)
+
+CONSTRUCTOR WITH PARAMETERS
+IMPORT: pCourse (String), pYear (Whole Number), pCWA (Decimal), pStatus (String), pCredits (Whole Number)
+EXPORT: None
+ALGORITHM:
+
+course <- pCourse
+year <- pYear
+cwa <- pCWA
+status <- pStatus
+earnedCredits <- pCredits
+
+
+METHOD: toString
+IMPORT: None
+EXPORT: theString (String)
+ALGORITHM:
+
+theString <- "Course: " + course + ", Year: " + year + ", CWA: " + cwa + ", Status: " + status + ", Credits: " + earnedCredits
+EXPORT theString
+
+CLASS StudentData
+
+CLASS FIELDS:
+
+students (ARRAY OF Student)
+
+studentCount (Whole Number)
+
+maxStudent (Whole Number)
+
+DEFAULT CONSTRUCTOR
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+students <- ARRAY OF SIZE maxStudent
+studentCount <- 0
+
+METHOD main
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+fileName <- "data.csv"
+CALL loadFile(fileName)
+CALL Choice(fileName)
+
+METHOD Choice
+
+IMPORT: fileName (String)
+EXPORT: None
+ALGORITHM:
+
+LOOP UNTIL user chooses 9
+    DISPLAY menu options
+    READ choose
+    SWITCH choose
+        CASE 1: CALL addStudent(fileName)
+        CASE 2: CALL editStudent(fileName)
+        CASE 3: CALL viewStudent()
+        CASE 4: CALL filterByCourse()
+        CASE 5: CALL filterByStatus()
+        CASE 6: CALL highestCWA()
+        CASE 7: CALL averageCWAByCourse()
+        CASE 8: CALL graduationEligibility()
+        DEFAULT: DO NOTHING
+END LOOP
+
+METHOD loadFile
+
+IMPORT: fileName (String)
+EXPORT: None
+ALGORITHM:
+
+OPEN fileName
+FOR EACH line IN file
+    SPLIT line INTO parts
+    IF parts LENGTH = 8
+        CREATE NEW Student WITH parts
+        ADD Student TO students
+        INCREMENT studentCount
+END FOR
+CLOSE file
+
+METHOD addStudent
+
+IMPORT: fileName (String)
+EXPORT: None
+ALGORITHM:
+
+IF studentCount >= maxStudent
+    DISPLAY "Database full"
+    RETURN
+
+READ studentID, firstName, lastName, course
+LOOP UNTIL year is valid
+    READ year
+END LOOP
+LOOP UNTIL cwa is valid number (no range check)
+    READ cwa
+END LOOP
+READ status
+LOOP UNTIL earnedCredits is valid
+    READ earnedCredits
+END LOOP
+
+CREATE NEW Student WITH above values
+ADD Student TO students
+INCREMENT studentCount
+
+APPEND Student data TO fileName
+DISPLAY "Student added successfully"
+
+METHOD editStudent
+
+IMPORT: fileName (String)
+EXPORT: None
+ALGORITHM:
+
+IF studentCount = 0
+    DISPLAY "No students to edit"
+    RETURN
+
+READ studentID
+SEARCH students ARRAY FOR studentID
+IF NOT FOUND
+    DISPLAY "Student not found"
+    RETURN
+
+FOR EACH FIELD
+    PROMPT user for new value (ENTER to skip)
+    UPDATE field IF input NOT EMPTY
+END FOR
+
+CALL saveAllStudentsToFile(fileName)
+DISPLAY "Student updated successfully"
+
+METHOD saveAllStudentsToFile
+
+IMPORT: fileName (String)
+EXPORT: None
+ALGORITHM:
+
+OPEN fileName FOR WRITING
+FOR EACH student IN students
+    WRITE student data TO file
+END FOR
+CLOSE file
+DISPLAY "All changes saved successfully"
+
+METHOD viewStudent
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+IF studentCount = 0
+    DISPLAY "No students"
+    RETURN
+FOR EACH student IN students
+    DISPLAY student.toString()
+END FOR
+
+METHOD filterByCourse
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+READ courseFilter
+FOR EACH student IN students
+    IF student.details.course EQUALS courseFilter
+        DISPLAY student.toString()
+    END IF
+END FOR
+
+METHOD filterByStatus
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+READ statusFilter
+FOR EACH student IN students
+    IF student.details.status EQUALS statusFilter
+        DISPLAY student.toString()
+    END IF
+END FOR
+
+METHOD highestCWA
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+maxCWA <- 0
+FOR EACH student IN students
+    IF student.details.cwa > maxCWA
+        maxCWA <- student.details.cwa
+END FOR
+DISPLAY all students WITH cwa = maxCWA
+
+METHOD averageCWAByCourse
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+COLLECT unique courses
+FOR EACH course
+    SUM cwa of all students in course
+    CALCULATE average
+    DISPLAY course, average
+END FOR
+
+METHOD graduationEligibility
+
+IMPORT: None
+EXPORT: None
+ALGORITHM:
+
+FOR EACH student IN students
+    IF student.details.earnedCredits >= 400
+        DISPLAY student.name + " is eligible"
+END FOR

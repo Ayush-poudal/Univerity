@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.Comparator;
+
 public class DSAGraphNode 
 {
     String label;
@@ -73,4 +76,24 @@ public class DSAGraphNode
 
         return equal;
     }
+
+    public DSAGraphNode[] getSortedAdjacent()
+{
+    Object[] adj = adjacencyList.toArray(); 
+    DSAGraphNode[] nodes = new DSAGraphNode[adj.length];
+
+    for (int i = 0; i < adj.length; i++)
+    {
+        nodes[i] = (DSAGraphNode) adj[i];
+    }
+
+    Arrays.sort(nodes, new Comparator<DSAGraphNode>() {
+        public int compare(DSAGraphNode a, DSAGraphNode b)
+        {
+            return a.getLabel().compareTo(b.getLabel());
+        }
+    });
+
+    return nodes;
+}
 }

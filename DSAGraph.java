@@ -210,7 +210,7 @@ public class DSAGraph {
             
             v = (DSAGraphNode) Q.dequeue();
 
-            Object[] adj = v.getAdjacent().toArray();
+            Object[] adj = v.getSortedAdjacent();
 
             for (int i = 0; i < adj.length; i++)
             {
@@ -301,4 +301,6 @@ public class DSAGraph {
             v.clearVisited();
         }
     }
+
+    
 }
